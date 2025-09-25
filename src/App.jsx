@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
 import { 
   Search, Package, Menu, X, Home, Phone, Mail, MapPin, Clock,
   Heart, ChevronRight, Truck, Shield, RefreshCw, AlertCircle,
@@ -117,7 +119,7 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
                 </div>
               </div>
               <div className="hidden sm:block">
-                <div className="flex flex-col items-center justify-center text-center  "> 
+                <div className="flex flex-col items-center justify-center text-center"> 
                   <img src={logo2} alt="Yaluwo Mobile" 
                   className="w-27 h-12 mb-1 p-0" /> 
                 </div>
@@ -165,8 +167,6 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
                 <Search className="w-6 h-6" />
               </button>
               
-             
-
               {/* Menu */}
               <button
                 onClick={onMenuToggle}
@@ -205,10 +205,39 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
   );
 };
 
-// Revolutionary Hero with Particle Effects
+// 3D Model Component
+function Model({ mousePos }) {
+  const modelRef = useRef();
+  
+  // Load the 3D model - using a simple fallback if model fails to load
+  const { scene } = useGLTF('./assets/iphone_16_pro_max (1).glb', true);
+  
+  // Make model interactive with mouse movement
+  useFrame(() => {
+    if (modelRef.current) {
+      modelRef.current.rotation.y = mousePos.x * 0.2;
+      modelRef.current.rotation.x = mousePos.y * 0.1;
+    }
+  });
+
+  return <primitive ref={modelRef} object={scene} scale={0.8} position={[0, 0, 0]} />;
+}
+
+// Fallback component while model loads
+function ModelFallback() {
+  return (
+    <mesh>
+      <boxGeometry args={[2, 2, 2]} />
+      <meshStandardMaterial color="#3b82f6" wireframe />
+    </mesh>
+  );
+}
+
+// Revolutionary Hero with 3D Model
 const RevolutionaryHero = ({ onExplore }) => {
   const canvasRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -268,6 +297,11 @@ const RevolutionaryHero = ({ onExplore }) => {
     };
     
     animate();
+    const handleScroll = () => {
+    setScrollY(window.scrollY);
+  };
+   window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
@@ -311,48 +345,54 @@ const RevolutionaryHero = ({ onExplore }) => {
         ))}
       </div>
 
-      {/* Hero Content */}
-      <div 
-        className="relative z-20 text-center text-white max-w-6xl mx-auto px-6 "
-        style={{
-          transform: `perspective(1000px) rotateX(${mousePos.y * 0.1}deg) rotateY(${mousePos.x * 0.1}deg)`
-        }}
-      >
+    <div className='flex h-screen'>
+        {/* 3D Model Section */}
+      <div className="flex inset-0 z-15 ">
+        <Canvas camera={{ position: [0, 0, 2],zoom: 1.2 }}>
+          <Suspense fallback={<ModelFallback />}>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} intensity={1.5} />
+            <Model mousePos={mousePos} scrollY={scrollY} />
+            <Environment preset="dawn" />
+          </Suspense>
+        </Canvas>
+      </div>
+       {/* Content Overlay */}
+      <div className=" z-20 text-center text-white max-w-3xl mx-auto px-4 pt-30">
         {/* Premium Badge */}
         <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 backdrop-blur-xl border border-yellow-400/30 rounded-full px-6 py-3 mb-8 animate-bounce">
           <Crown className="w-5 h-5 text-yellow-400" />
           <span className="text-yellow-200 font-semibold">Premium Tech Collection</span>
           <Sparkles className="w-5 h-5 text-yellow-400" />
         </div>
-
-        <h1 className="text-6xl md:text-8xl font-black mb-8 leading-none">
+        
+        <h1 className="text-4xl md:text-6xl font-black mb-8 leading-none">
           <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
             REDEFINE
           </span>
           <br />
-          <span className="text-white">YOUR TECH</span>
+          <span className="text-white backdrop-blur-sm">YOUR TECH</span>
         </h1>
-
-        <p className="text-xl md:text-3xl mb-12 text-gray-200 leading-relaxed font-light max-w-4xl mx-auto">
-          Experience the future of mobile technology with our 
+        
+        <p className="text-xl md:text-2xl mb-12 text-gray-200 leading-relaxed font-light max-w-4xl mx-auto backdrop-blur-sm">
+          Experience the future of mobile technology with our
           <span className="text-cyan-400 font-semibold"> AI-powered accessories </span>
           and cutting-edge innovations designed for tomorrow's world.
         </p>
-
+        
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
           <button
             onClick={onExplore}
-            className="group relative px-12 py-6 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:rotate-1 shadow-2xl hover:shadow-cyan-500/50"
+            className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:rotate-1 shadow-2xl hover:shadow-cyan-500/50"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
             <div className="relative flex items-center space-x-3">
-              <Zap className="w-6 h-6" />
+              <Zap className="w-4 h-4" />
               <span>Explore Collection</span>
-              <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </div>
           </button>
-
           <button className="group px-12 py-6 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:-rotate-1 hover:bg-white/20">
             <div className="flex items-center space-x-3">
               <Play className="w-6 h-6" />
@@ -360,26 +400,12 @@ const RevolutionaryHero = ({ onExplore }) => {
             </div>
           </button>
         </div>
-
-        {/* Tech Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-          {[
-            { number: '10K+', label: 'Happy Customers', icon: Users },
-            { number: '500+', label: 'Premium Products', icon: Package },
-            { number: '99.9%', label: 'Uptime', icon: Zap },
-            { number: '24/7', label: 'Support', icon: Shield }
-          ].map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <div key={index} className="text-center group hover:scale-110 transition-transform duration-300">
-                <IconComponent className="w-8 h-8 text-cyan-400 mx-auto mb-3 group-hover:text-purple-400 transition-colors" />
-                <div className="text-3xl font-black text-white mb-1">{stat.number}</div>
-                <div className="text-gray-300 text-sm">{stat.label}</div>
-              </div>
-            );
-          })}
-        </div>
+        
+       
       </div>
+    </div>
+
+     
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
@@ -393,6 +419,7 @@ const RevolutionaryHero = ({ onExplore }) => {
     </section>
   );
 };
+
 
 // Next-Gen Product Grid
 const NextGenProductGrid = ({ products, categories }) => {
