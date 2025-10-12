@@ -13,8 +13,8 @@ import {
 import logo2 from './assets/2.png'; 
 
 // API Service (unchanged functionality)
-const API_BASE_URL = 'http://localhost:8080/api';
-const AUTH_URL = 'http://localhost:8080/api/auth/login';
+const API_BASE_URL = 'https://pos-backend-app-bmgcc4cud0edeufw.southeastasia-01.azurewebsites.net/api';
+const AUTH_URL = 'https://pos-backend-app-bmgcc4cud0edeufw.southeastasia-01.azurewebsites.net/api/auth/login';
 
 const autoLogin = async () => {
   try {
