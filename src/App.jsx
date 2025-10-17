@@ -544,7 +544,7 @@ const NextGenProductGrid = ({ products, categories }) => {
         </div>
 
         {/* Products Grid */}
-        <div className={`grid gap-8 mx-16 ${
+        <div className={`grid gap-8  ${
           viewMode === 'grid' 
             ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
             : 'grid-cols-1'
