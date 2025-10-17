@@ -370,8 +370,8 @@ const RevolutionaryHero = ({ onExplore }) => {
             <span className="text-yellow-200 font-semibold">Premium Tech Collection</span>
             <Sparkles className="w-5 h-5 text-yellow-400" />
           </div>
-
-          {/* ADDED: More granular responsive text sizes */}
+          <div className='backdrop-blur-sm'>
+            {/* ADDED: More granular responsive text sizes */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-8 leading-tight">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
               REDEFINE
@@ -385,6 +385,8 @@ const RevolutionaryHero = ({ onExplore }) => {
             <span className="text-cyan-400 font-semibold"> AI-powered accessories </span>
             and cutting-edge innovations designed for tomorrow's world.
           </p>
+          </div>
+          
 
           {/* This part was already responsive, no changes needed */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
@@ -953,20 +955,20 @@ const NextGenContact = () => {
               {[
                 {
                   icon: Phone,
-                  title: "Quantum Hotline",
+                  title: " Hotline",
                   detail: "078 7809313",
 
                   color: "from-green-400 to-emerald-600"
                 },
                 {
                   icon: Mail,
-                  title: "Neural Network",
+                  title: "EMAIL",
                   detail: "info@yaluwomobile.com",
                   color: "from-blue-400 to-cyan-600"
                 },
                 {
                   icon: MapPin,
-                  title: "Innovation Hub",
+                  title: "LOCATION",
                   detail: "Hagala Junction",
 
                   color: "from-purple-400 to-pink-600"
