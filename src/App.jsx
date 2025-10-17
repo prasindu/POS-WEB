@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
-import { 
+import {
   Search, Package, Menu, X, Home, Phone, Mail, MapPin, Clock,
   Heart, ChevronRight, Truck, Shield, RefreshCw, AlertCircle,
-  Camera, Scan, Zap, Award, Globe, TrendingUp, Users, Sparkles, 
+  Camera, Scan, Zap, Award, Globe, TrendingUp, Users, Sparkles,
   MessageCircle, Gift, Crown, ShoppingBag, Star, Filter, Grid3X3, List,
   ArrowRight, Play, Pause, SkipForward, SkipBack, Volume2, Maximize2,
   Eye, ShoppingCart, Bookmark, Share2, ThumbsUp, Layers, Cpu,
   Headphones, Battery, Wifi, Bluetooth
 } from 'lucide-react';
-import logo2 from './assets/2.png'; 
+import logo2 from './assets/2.png';
 
 // API Service (unchanged functionality)
 const API_BASE_URL = 'https://pos-backend-app-bmgcc4cud0edeufw.southeastasia-01.azurewebsites.net/api';
@@ -25,10 +25,10 @@ const autoLogin = async () => {
         "username": "manager1",
         "password": "securePassword123"
       })
-    });         
-    
+    });
+
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
+
     const data = await response.json();
     return data.token;
   } catch (error) {
@@ -40,11 +40,11 @@ const autoLogin = async () => {
 const apiService = {
   async request(endpoint, options = {}) {
     let token;
-    
+
     try {
       // Try to get existing token from memory first
       if (!token) token = await autoLogin();
-      
+
       const headers = {
         'Content-Type': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
@@ -52,7 +52,7 @@ const apiService = {
       };
 
       const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
-      
+
       if (response.status === 401) {
         const newToken = await autoLogin();
         headers.Authorization = `Bearer ${newToken}`;
@@ -60,7 +60,7 @@ const apiService = {
         if (!retryResponse.ok) throw new Error(`HTTP error! status: ${retryResponse.status}`);
         return await retryResponse.json();
       }
-      
+
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -86,22 +86,22 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
       const offset = window.scrollY;
       setScrolled(offset > 50);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <>
-      <header 
+      <header
         ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
-          scrolled 
-            ? 'bg-white/10 backdrop-blur-2xl shadow-2xl border-b border-white/20' 
+          scrolled
+            ? 'bg-white/10 backdrop-blur-2xl shadow-2xl border-b border-white/20'
             : 'bg-transparent'
         }`}
         style={{
-          background: scrolled 
+          background: scrolled
             ? 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(124,58,237,0.1) 100%)'
             : 'transparent'
         }}
@@ -119,9 +119,9 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
                 </div>
               </div>
               <div className="hidden sm:block">
-                <div className="flex flex-col items-center justify-center text-center"> 
-                  <img src={logo2} alt="Yaluwo Mobile" 
-                  className="w-27 h-12 mb-1 p-0" /> 
+                <div className="flex flex-col items-center justify-center text-center">
+                  <img src={logo2} alt="Yaluwo Mobile"
+                  className="w-27 h-12 mb-1 p-0" />
                 </div>
               </div>
             </div>
@@ -160,13 +160,13 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
             {/* Action Buttons */}
             <div className="flex items-center space-x-3">
               {/* Search Toggle */}
-              <button 
+              <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="p-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
               >
                 <Search className="w-6 h-6" />
               </button>
-              
+
               {/* Menu */}
               <button
                 onClick={onMenuToggle}
@@ -191,7 +191,7 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
                 className="flex-1 bg-transparent text-white placeholder-gray-300 text-xl border-none outline-none"
                 autoFocus
               />
-              <button 
+              <button
                 onClick={() => setIsSearchOpen(false)}
                 className="p-2 text-gray-300 hover:text-white transition-colors"
               >
@@ -206,17 +206,22 @@ const FuturisticHeader = ({ currentPage, onPageChange, onMenuToggle }) => {
 };
 
 // 3D Model Component
-function Model({ mousePos }) {
+
+function Model({ scrollY }) {
   const modelRef = useRef();
-  
-  // Load the 3D model - using a simple fallback if model fails to load
+
+  // Load the 3D model
   const { scene } = useGLTF('./assets/iphone_16_pro_max (1).glb', true);
-  
-  // Make model interactive with mouse movement
+
+  // This hook runs on every rendered frame
   useFrame(() => {
     if (modelRef.current) {
-      modelRef.current.rotation.y = mousePos.x * 0.2;
-      modelRef.current.rotation.x = mousePos.y * 0.1;
+      // The model's rotation on the Y-axis is now *only* tied to the scroll position.
+      // The model will be still when you are not scrolling.
+      modelRef.current.rotation.y = scrollY * 0.008;
+
+      // The subtle tilt on the X-axis also remains dependent on scroll.
+      modelRef.current.rotation.x = scrollY * 0.001;
     }
   });
 
@@ -260,28 +265,28 @@ const RevolutionaryHero = ({ onExplore }) => {
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       particles.forEach(particle => {
         // Move particles
         particle.x += particle.vx;
         particle.y += particle.vy;
-        
+
         // Boundary collision
         if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-        
+
         // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(96, 165, 250, ${0.8 - particle.radius * 0.2})`;
         ctx.fill();
-        
+
         // Connect nearby particles
         particles.forEach(other => {
           const dx = particle.x - other.x;
           const dy = particle.y - other.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < 100) {
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
@@ -292,10 +297,10 @@ const RevolutionaryHero = ({ onExplore }) => {
           }
         });
       });
-      
+
       requestAnimationFrame(animate);
     };
-    
+
     animate();
     const handleScroll = () => {
     setScrollY(window.scrollY);
@@ -320,17 +325,16 @@ const RevolutionaryHero = ({ onExplore }) => {
   };
 
   return (
-    <section 
-      className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"
+   <section
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"
       onMouseMove={handleMouseMove}
     >
-      {/* Particle Canvas */}
+      {/* Particle Canvas (Background Layer 1) */}
       <canvas ref={canvasRef} className="absolute inset-0 z-10" />
-      
-      {/* Animated Background */}
+
+      {/* Animated Gradient Orbs (Background Layer 0) */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-purple-600/20"></div>
-        {/* Floating Orbs */}
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
@@ -345,10 +349,9 @@ const RevolutionaryHero = ({ onExplore }) => {
         ))}
       </div>
 
-    <div className='flex h-screen'>
-        {/* 3D Model Section */}
-      <div className="flex inset-0 z-15 ">
-        <Canvas camera={{ position: [0, 0, 2],zoom: 1.2 }}>
+      {/* CHANGED: 3D Model Canvas is now positioned absolutely to act as a background */}
+      <div className="absolute inset-0 z-15 lg:w-1/2 lg:left-auto">
+        <Canvas camera={{ position: [0, 0, 2], zoom: 1.2 }}>
           <Suspense fallback={<ModelFallback />}>
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1.5} />
@@ -357,55 +360,54 @@ const RevolutionaryHero = ({ onExplore }) => {
           </Suspense>
         </Canvas>
       </div>
-       {/* Content Overlay */}
-      <div className=" z-20 text-center text-white max-w-3xl mx-auto px-4 pt-30">
-        {/* Premium Badge */}
-        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 backdrop-blur-xl border border-yellow-400/30 rounded-full px-6 py-3 mb-8 animate-bounce">
-          <Crown className="w-5 h-5 text-yellow-400" />
-          <span className="text-yellow-200 font-semibold">Premium Tech Collection</span>
-          <Sparkles className="w-5 h-5 text-yellow-400" />
-        </div>
-        
-        <h1 className="text-4xl md:text-6xl font-black mb-8 leading-none">
-          <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-            REDEFINE
-          </span>
-          <br />
-          <span className="text-white backdrop-blur-sm">YOUR TECH</span>
-        </h1>
-        
-        <p className="text-xl md:text-2xl mb-12 text-gray-200 leading-relaxed font-light max-w-4xl mx-auto backdrop-blur-sm">
-          Experience the future of mobile technology with our
-          <span className="text-cyan-400 font-semibold"> AI-powered accessories </span>
-          and cutting-edge innovations designed for tomorrow's world.
-        </p>
-        
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-          <button
-            onClick={onExplore}
-            className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:rotate-1 shadow-2xl hover:shadow-cyan-500/50"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative flex items-center space-x-3">
-              <Zap className="w-4 h-4" />
-              <span>Explore Collection</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
-            </div>
-          </button>
-          <button className="group px-12 py-6 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:-rotate-1 hover:bg-white/20">
-            <div className="flex items-center space-x-3">
-              <Play className="w-6 h-6" />
-              <span>Watch Demo</span>
-            </div>
-          </button>
-        </div>
-        
-       
-      </div>
-    </div>
 
-     
+      {/* CHANGED: Content is now in a single column, centered, and responsive */}
+      <div className="relative z-20 w-full flex items-center justify-center lg:justify-start">
+        <div className="text-center lg:text-left max-w-3xl mx-auto lg:mx-0 lg:ml-24 px-4 py-24 sm:py-32">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 backdrop-blur-xl border border-yellow-400/30 rounded-full px-6 py-3 mb-8 animate-bounce">
+            <Crown className="w-5 h-5 text-yellow-400" />
+            <span className="text-yellow-200 font-semibold">Premium Tech Collection</span>
+            <Sparkles className="w-5 h-5 text-yellow-400" />
+          </div>
+
+          {/* ADDED: More granular responsive text sizes */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-8 leading-tight">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+              REDEFINE
+            </span>
+            <br />
+            <span className="text-white ">YOUR TECH</span>
+          </h1>
+
+          <p className="text-lg md:text-xl mb-12 text-gray-200 leading-relaxed font-light max-w-xl mx-auto lg:mx-0 ">
+            Experience the future of mobile technology with our
+            <span className="text-cyan-400 font-semibold"> AI-powered accessories </span>
+            and cutting-edge innovations designed for tomorrow's world.
+          </p>
+
+          {/* This part was already responsive, no changes needed */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
+            <button
+              onClick={onExplore}
+              className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:rotate-1 shadow-2xl hover:shadow-cyan-500/50"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative flex items-center space-x-3">
+                <Zap className="w-4 h-4" />
+                <span>Explore Collection</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+              </div>
+            </button>
+            <button className="group px-12 py-6 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-2xl font-bold text-xl transition-all duration-500 hover:scale-110 hover:-rotate-1 hover:bg-white/20">
+              <div className="flex items-center space-x-3">
+                <Play className="w-6 h-6" />
+                <span>Watch Demo</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
@@ -452,16 +454,16 @@ const NextGenProductGrid = ({ products, categories }) => {
             <Sparkles className="w-5 h-5 text-cyan-400" />
             <span className="text-cyan-200 font-semibold">Premium Collection</span>
           </div>
-          
+
           <h2 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
             <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               Featured
             </span>
             <br />Products
           </h2>
-          
+
           <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-            Discover our handpicked selection of revolutionary mobile accessories, 
+            Discover our handpicked selection of revolutionary mobile accessories,
             each designed to push the boundaries of innovation and style.
           </p>
         </div>
@@ -521,8 +523,8 @@ const NextGenProductGrid = ({ products, categories }) => {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`flex-1 px-6 py-3 rounded-xl transition-all duration-300 ${
-                    viewMode === 'grid' 
-                      ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white' 
+                    viewMode === 'grid'
+                      ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white'
                       : 'text-gray-300 hover:text-white'
                   }`}
                 >
@@ -531,8 +533,8 @@ const NextGenProductGrid = ({ products, categories }) => {
                 <button
                   onClick={() => setViewMode('list')}
                   className={`flex-1 px-6 py-3 rounded-xl transition-all duration-300 ${
-                    viewMode === 'list' 
-                      ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white' 
+                    viewMode === 'list'
+                      ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white'
                       : 'text-gray-300 hover:text-white'
                   }`}
                 >
@@ -545,14 +547,14 @@ const NextGenProductGrid = ({ products, categories }) => {
 
         {/* Products Grid */}
         <div className={`grid gap-8  ${
-          viewMode === 'grid' 
-            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+          viewMode === 'grid'
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             : 'grid-cols-1'
         }`}>
           {sortedProducts.map((product, index) => (
-            <NextGenProductCard 
-              key={product.id} 
-              product={product} 
+            <NextGenProductCard
+              key={product.id}
+              product={product}
               viewMode={viewMode}
               index={index}
             />
@@ -585,7 +587,7 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
       <div className="group relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500 overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        
+
         <div className="relative flex items-center space-x-8">
           {/* Product Image */}
           <div className="relative w-32 h-32 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
@@ -596,7 +598,7 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
             )}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-purple-600/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </div>
-          
+
           {/* Product Info */}
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-3">
@@ -610,34 +612,34 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
                 <span className="text-gray-300 text-sm ml-2">(4.9)</span>
               </div>
             </div>
-            
+
             <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors duration-300">
               {product.name}
             </h3>
-            
+
             <p className="text-gray-300 mb-6 leading-relaxed">
               {product.description || 'Revolutionary mobile accessory with cutting-edge technology and premium design.'}
             </p>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-3xl font-black text-white">${product.sellingPrice}</span>
                 <span className="text-lg text-gray-500 line-through ml-3">${(product.sellingPrice * 1.25).toFixed(2)}</span>
               </div>
-              
+
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setIsLiked(!isLiked)}
                   className={`p-4 rounded-2xl transition-all duration-300 ${
-                    isLiked 
-                      ? 'bg-red-500/20 text-red-400 border border-red-400/30' 
+                    isLiked
+                      ? 'bg-red-500/20 text-red-400 border border-red-400/30'
                       : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-red-500/20 hover:text-red-400'
                   }`}
                 >
                   <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
                 </button>
-                
-               
+
+
               </div>
             </div>
           </div>
@@ -647,7 +649,7 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
   }
 
   return (
-    <div 
+    <div
       className="group relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden hover:bg-white/10 transition-all duration-700 hover:scale-105 hover:-translate-y-2"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -658,7 +660,7 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
     >
       {/* Holographic Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
+
       {/* Floating Particles */}
       {isHovered && (
         <div className="absolute inset-0 pointer-events-none">
@@ -676,13 +678,13 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
           ))}
         </div>
       )}
-      
+
       {/* Product Image Container */}
       <div className="relative h-80 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
           {product.imageUrl ? (
-            <img 
-              src={product.imageUrl} 
+            <img
+              src={product.imageUrl}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125"
             />
@@ -690,10 +692,10 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
             <Package className="w-24 h-24 text-cyan-400" />
           )}
         </div>
-        
+
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-        
+
         {/* Badges */}
         <div className="absolute top-6 left-6 flex flex-col space-y-2">
           <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold shadow-lg">
@@ -703,29 +705,29 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
             25% OFF
           </span>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="absolute top-6 right-6 flex flex-col space-y-3">
           <button
             onClick={() => setIsLiked(!isLiked)}
             className={`p-3 rounded-2xl backdrop-blur-xl transition-all duration-300 ${
-              isLiked 
-                ? 'bg-red-500/80 text-white shadow-lg shadow-red-500/50' 
+              isLiked
+                ? 'bg-red-500/80 text-white shadow-lg shadow-red-500/50'
                 : 'bg-white/20 text-white hover:bg-red-500/80'
             }`}
           >
             <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
           </button>
-          
+
           <button className="p-3 bg-white/20 backdrop-blur-xl text-white hover:bg-white/30 rounded-2xl transition-all duration-300">
             <Eye className="w-5 h-5" />
           </button>
-          
+
           <button className="p-3 bg-white/20 backdrop-blur-xl text-white hover:bg-white/30 rounded-2xl transition-all duration-300">
             <Share2 className="w-5 h-5" />
           </button>
         </div>
-        
+
         {/* Quick Add to Cart - Shows on Hover */}
         <div className={`absolute bottom-6 left-6 right-6 transform transition-all duration-500 ${
           isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
@@ -752,25 +754,24 @@ const NextGenProductCard = ({ product, viewMode, index }) => {
             <span className="text-gray-400 text-sm ml-2">(4.9)</span>
           </div>
         </div>
-        
+
         <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 group-hover:text-cyan-400 transition-colors duration-300">
           {product.name}
         </h3>
-        
+
         <p className="text-gray-400 text-sm mb-6 line-clamp-2">
           {product.description || 'Revolutionary mobile accessory with cutting-edge AI technology and premium materials.'}
         </p>
-        
-        {/* Tech Specs */}
-        
-        
+
+
+
         <div className="flex items-center justify-between">
           <div>
             <span className="text-3xl font-black text-white">${product.sellingPrice}</span>
             <span className="text-sm text-gray-500 line-through ml-2">${(product.sellingPrice * 1.25).toFixed(2)}</span>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => setIs3D(!is3D)}
             className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/50"
           >
@@ -832,19 +833,19 @@ const FuturisticFeatures = () => {
           ></div>
         ))}
       </div>
-      
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         <div className="text-center mb-20">
           <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl border border-cyan-400/30 rounded-full px-6 py-3 mb-4">
             <Cpu className="w-5 h-5 text-cyan-400" />
             <span className="text-cyan-200 font-semibold">Advanced Technology</span>
           </div>
-          
+
           <h2 className="text-3xl md:text-6xl font-black text-white mb-6">
-            Why Choose 
-            <div className="flex flex-col items-center justify-center text-center  "> 
-                  <img src={logo2} alt="Yaluwo Mobile" 
-                  className="w-50 h-20 mb-1 m-3" /> 
+            Why Choose
+            <div className="flex flex-col items-center justify-center text-center  ">
+                  <img src={logo2} alt="Yaluwo Mobile"
+                  className="w-50 h-20 mb-1 m-3" />
                 </div>
           </h2>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto">
@@ -856,7 +857,7 @@ const FuturisticFeatures = () => {
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
-              <div 
+              <div
                 key={feature.title}
                 className="group relative"
                 style={{ animationDelay: `${index * 200}ms` }}
@@ -865,21 +866,21 @@ const FuturisticFeatures = () => {
                 <div className={`relative bg-gradient-to-br ${feature.bgColor} backdrop-blur-2xl border border-white/10 rounded-3xl p-8 hover:border-cyan-400/30 transition-all duration-700 hover:scale-105 hover:-translate-y-2 overflow-hidden`}>
                   {/* Animated Background */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
-                  
+
                   {/* Icon Container */}
                   <div className={`relative inline-flex p-4 bg-gradient-to-r ${feature.color} rounded-2xl mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg group-hover:shadow-2xl`}>
                     <IconComponent className="w-8 h-8 text-white" />
                     {/* Pulse Ring */}
                     <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} rounded-2xl opacity-75 scale-110 animate-ping group-hover:animate-pulse`}></div>
                   </div>
-                  
+
                   <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors duration-300">
                     {feature.title}
                   </h3>
                   <p className="text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors duration-300">
                     {feature.description}
                   </p>
-                  
+
                   {/* Learn More Link */}
                   <div className="mt-6">
                     <a href="#" className="inline-flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 font-semibold transition-colors duration-300">
@@ -911,10 +912,10 @@ const NextGenContact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     alert('Message sent successfully! Our AI team will respond within 24 hours.');
     setFormData({ name: '', email: '', subject: '', message: '', priority: 'normal' });
     setIsSubmitting(false);
@@ -927,7 +928,7 @@ const NextGenContact = () => {
         <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           {/* Contact Info */}
@@ -936,7 +937,7 @@ const NextGenContact = () => {
               <MessageCircle className="w-5 h-5 text-cyan-400" />
               <span className="text-cyan-200 font-semibold">Get in Touch</span>
             </div>
-            
+
             <h2 className="text-5xl md:text-6xl font-black text-white mb-8 leading-tight">
               Let's Create the
               <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent block">
@@ -944,30 +945,30 @@ const NextGenContact = () => {
               </span>
             </h2>
             <p className="text-xl text-gray-300 mb-12 leading-relaxed">
-              Connect with our innovation team to explore custom solutions, partnerships, 
+              Connect with our innovation team to explore custom solutions, partnerships,
               or get support for your cutting-edge tech needs.
             </p>
-            
+
             <div className="space-y-8">
               {[
-                { 
-                  icon: Phone, 
-                  title: "Quantum Hotline", 
+                {
+                  icon: Phone,
+                  title: "Quantum Hotline",
                   detail: "078 7809313",
-                
+
                   color: "from-green-400 to-emerald-600"
                 },
-                { 
-                  icon: Mail, 
-                  title: "Neural Network", 
+                {
+                  icon: Mail,
+                  title: "Neural Network",
                   detail: "info@yaluwomobile.com",
                   color: "from-blue-400 to-cyan-600"
                 },
-                { 
-                  icon: MapPin, 
-                  title: "Innovation Hub", 
+                {
+                  icon: MapPin,
+                  title: "Innovation Hub",
                   detail: "Hagala Junction",
-                  
+
                   color: "from-purple-400 to-pink-600"
                 }
               ].map((contact, index) => {
@@ -1015,7 +1016,7 @@ const NextGenContact = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-cyan-400 uppercase tracking-wider">Subject</label>
@@ -1042,7 +1043,7 @@ const NextGenContact = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-cyan-400 uppercase tracking-wider">Message</label>
                 <textarea
@@ -1054,7 +1055,7 @@ const NextGenContact = () => {
                   required
                 />
               </div>
-              
+
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -1093,7 +1094,7 @@ const FuturisticFooter = () => {
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
-      
+
       <div className="max-w-8xl mx-auto px-6 lg:px-8 py-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Section */}
@@ -1103,18 +1104,18 @@ const FuturisticFooter = () => {
                 <ShoppingBag className="w-8 h-8 text-white" />
               </div>
               <div>
-                <div className="flex flex-col items-center justify-center text-center  "> 
-                  <img src={logo2} alt="Yaluwo Mobile" 
-                  className="w-30 h-12 mb-1 p-0" /> 
+                <div className="flex flex-col items-center justify-center text-center  ">
+                  <img src={logo2} alt="Yaluwo Mobile"
+                  className="w-30 h-12 mb-1 p-0" />
                 </div>
-                
+
               </div>
             </div>
             <p className="text-gray-300 leading-relaxed mb-8 text-lg">
-              Pioneering the future of mobile technology with AI-powered accessories and quantum-enhanced experiences. 
+              Pioneering the future of mobile technology with AI-powered accessories and quantum-enhanced experiences.
               Join millions of users worldwide in the next evolution of digital lifestyle.
             </p>
-            
+
             {/* Social Links */}
             <div className="flex space-x-4">
               {['Twitter', 'Instagram', 'LinkedIn', 'YouTube'].map((social) => (
@@ -1203,11 +1204,11 @@ const FuturisticMobileMenu = ({ isOpen, onClose, onPageChange }) => {
   return (
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500"
         onClick={onClose}
       />
-      
+
       {/* Menu Panel */}
       <div className="absolute right-0 top-0 h-full w-full max-w-md bg-gradient-to-br from-gray-900/95 via-blue-900/95 to-purple-900/95 backdrop-blur-2xl border-l border-white/10 transform transition-transform duration-500">
         {/* Header */}
@@ -1217,14 +1218,14 @@ const FuturisticMobileMenu = ({ isOpen, onClose, onPageChange }) => {
               <ShoppingBag className="w-7 h-7 text-white" />
             </div>
             <div>
-              <div className="flex flex-col items-center justify-center text-center  "> 
-                  <img src={logo2} alt="Yaluwo Mobile" 
-                  className="w-25 h-10 mb-1 p-0" /> 
+              <div className="flex flex-col items-center justify-center text-center  ">
+                  <img src={logo2} alt="Yaluwo Mobile"
+                  className="w-25 h-10 mb-1 p-0" />
                 </div>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="p-3 hover:bg-white/10 rounded-2xl transition-colors duration-300"
           >
             <X className="w-7 h-7 text-gray-300" />
@@ -1269,7 +1270,7 @@ const FuturisticMobileMenu = ({ isOpen, onClose, onPageChange }) => {
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-8 border-t border-white/10">
           <div className="flex items-center space-x-4 mb-6">
-            
+
             <button className="p-4 bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 rounded-2xl transition-all duration-300 hover:scale-110">
               <Search className="w-6 h-6" />
             </button>
@@ -1302,7 +1303,7 @@ const RevolutionaryLoader = () => {
           />
         ))}
       </div>
-      
+
       {/* Loader Content */}
       <div className="text-center relative z-10">
         {/* Logo Animation */}
@@ -1314,20 +1315,20 @@ const RevolutionaryLoader = () => {
           <div className="absolute inset-0 border-4 border-cyan-400/30 rounded-3xl animate-spin"></div>
           <div className="absolute inset-2 border-4 border-purple-500/30 rounded-3xl animate-spin" style={{ animationDirection: 'reverse' }}></div>
         </div>
-        
+
         {/* Brand */}
-        <div className="flex flex-col items-center justify-center text-center  "> 
-                  <img src={logo2} alt="Yaluwo Mobile" 
-                  className="w-50 h-25 mb-1 p-3" /> 
+        <div className="flex flex-col items-center justify-center text-center  ">
+                  <img src={logo2} alt="Yaluwo Mobile"
+                  className="w-50 h-25 mb-1 p-3" />
                 </div>
         {/* Loading Text */}
         <p className="text-2xl font-bold text-white mb-8">Initializing Quantum Interface</p>
-        
+
         {/* Progress Bar */}
         <div className="w-80 h-2 bg-white/10 rounded-full mx-auto overflow-hidden">
           <div className="h-full bg-gradient-to-r from-cyan-400 to-purple-600 rounded-full animate-pulse"></div>
         </div>
-        
+
         {/* Loading Steps */}
         <div className="mt-8 text-gray-300">
           <div className="animate-pulse">Preparing your premium experience...</div>
@@ -1421,13 +1422,13 @@ const RevolutionaryMobileStore = () => {
             <NextGenContact />
           </>
         )}
-        
+
         {currentPage === 'products' && (
           <div className="pt-20">
             <NextGenProductGrid products={products} categories={categories} />
           </div>
         )}
-        
+
         {currentPage === 'about' && (
           <section className="pt-32 pb-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
             <div className="max-w-6xl mx-auto px-6 text-center">
@@ -1439,18 +1440,18 @@ const RevolutionaryMobileStore = () => {
                 About <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">YALUWO MObile</span>
               </h1>
               <p className="text-2xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
-                We're pioneering the future of mobile technology, combining cutting-edge AI, 
-                quantum computing, and revolutionary design to create accessories that don't 
+                We're pioneering the future of mobile technology, combining cutting-edge AI,
+                quantum computing, and revolutionary design to create accessories that don't
                 just complement your devices—they transform your entire digital experience.
               </p>
-              <div className="flex flex-col items-center justify-center text-center  "> 
-                  <img src={logo2} alt="Yaluwo Mobile" 
-                  className="w-65 h-30 mb-1 m-5" /> 
+              <div className="flex flex-col items-center justify-center text-center  ">
+                  <img src={logo2} alt="Yaluwo Mobile"
+                  className="w-65 h-30 mb-1 m-5" />
                 </div>
             </div>
           </section>
         )}
-        
+
         {currentPage === 'contact' && (
           <div className="pt-20">
             <NextGenContact />
