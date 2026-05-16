@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
@@ -1342,11 +1343,32 @@ const RevolutionaryLoader = () => {
 
 // Main Revolutionary App Component
 const RevolutionaryMobileStore = () => {
+=======
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+
+// Import Components & Services
+import { apiService } from './services/api';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Hero from './components/Hero';
+import ProductGrid from './components/ProductGrid';
+import Features from './components/Features';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import { FadeInPage, ProfessionalLoader } from './components/Shared';
+
+const App = () => {
+>>>>>>> b2b7bf43ff86955f8ae817790b9e486105431362
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -1360,110 +1382,81 @@ const RevolutionaryMobileStore = () => {
         setCategories(categoriesData);
       } catch (error) {
         console.error('Failed to load data:', error);
-        // Create fallback data for demo
         setProducts([
-          {
-            id: 1,
-            name: "Quantum Phone Case Pro",
-            category: "Cases",
-            sellingPrice: 299.99,
-            description: "Revolutionary phone case with quantum encryption and holographic display"
-          },
-          {
-            id: 2,
-            name: "Neural Wireless Charger",
-            category: "Chargers",
-            sellingPrice: 199.99,
-            description: "AI-powered wireless charging with predictive battery optimization"
-          },
-          {
-            id: 3,
-            name: "Holographic Headphones",
-            category: "Audio",
-            sellingPrice: 599.99,
-            description: "3D spatial audio with real-time neural processing"
-          }
+          { id: 1, name: "iPhone 15 Pro Max", category: "Smartphones", sellingPrice: 385000 },
+          { id: 2, name: "AirPods Pro 2", category: "Audio", sellingPrice: 75000 },
+          { id: 3, name: "MagSafe Charger", category: "Accessories", sellingPrice: 15000 },
+          { id: 4, name: "Smart Folio Case", category: "Cases", sellingPrice: 18000 }
         ]);
         setCategories([
-          { id: 1, name: "Cases" },
-          { id: 2, name: "Chargers" },
-          { id: 3, name: "Audio" }
+          { id: 1, name: "Smartphones" },
+          { id: 2, name: "Audio" },
+          { id: 3, name: "Accessories" },
+          { id: 4, name: "Cases" }
         ]);
       } finally {
-        setTimeout(() => setLoading(false), 3000); // Enhanced loading experience
+        setTimeout(() => setLoading(false), 800);
       }
     };
-
     fetchData();
   }, []);
 
-  if (loading) {
-    return <RevolutionaryLoader />;
-  }
+  if (loading) return <ProfessionalLoader />;
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <FuturisticHeader
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        onMenuToggle={() => setMenuOpen(true)}
-      />
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-200 selection:bg-blue-500/30">
+      <style>{`
+        html { scroll-behavior: smooth; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .page-transition { animation: fadeIn 0.5s ease-out forwards; }
+      `}</style>
 
-      <FuturisticMobileMenu
-        isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        onPageChange={setCurrentPage}
-      />
+      <Header currentPage={currentPage} onPageChange={setCurrentPage} onMenuToggle={() => setMenuOpen(!menuOpen)} />
 
-      <main>
-        {currentPage === 'home' && (
-          <>
-            <RevolutionaryHero onExplore={() => setCurrentPage('products')} />
-            <NextGenProductGrid products={products} categories={categories} />
-            <FuturisticFeatures />
-            <NextGenContact />
-          </>
-        )}
-
-        {currentPage === 'products' && (
-          <div className="pt-20">
-            <NextGenProductGrid products={products} categories={categories} />
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 bg-slate-950/95 backdrop-blur-md pt-24 px-6 page-transition">
+          <button onClick={() => setMenuOpen(false)} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white">
+            <X className="w-8 h-8" />
+          </button>
+          <div className="flex flex-col space-y-6 mt-10">
+             {['home', 'products', 'about', 'contact'].map(page => (
+               <button 
+                 key={page}
+                 className={`text-3xl font-bold text-left capitalize transition-colors ${currentPage === page ? 'text-blue-500' : 'text-slate-400 hover:text-white'}`}
+                 onClick={() => { setCurrentPage(page); setMenuOpen(false); }}
+               >
+                 {page}
+               </button>
+             ))}
           </div>
+        </div>
+      )}
+
+      <main className="flex-grow">
+        {currentPage === 'home' && (
+          <FadeInPage>
+            <Hero onExplore={() => setCurrentPage('products')} />
+            <ProductGrid products={products.slice(0, 4)} categories={categories} />
+            <Features />
+          </FadeInPage>
+        )}
+        
+        {currentPage === 'products' && (
+          <FadeInPage><ProductGrid products={products} categories={categories} /></FadeInPage>
         )}
 
         {currentPage === 'about' && (
-          <section className="pt-32 pb-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen">
-            <div className="max-w-6xl mx-auto px-6 text-center">
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl border border-cyan-400/30 rounded-full px-6 py-3 mb-8">
-                <Users className="w-5 h-5 text-cyan-400" />
-                <span className="text-cyan-200 font-semibold">Our Story</span>
-              </div>
-              <h1 className="text-6xl font-black text-white mb-8">
-                About <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">YALUWO MObile</span>
-              </h1>
-              <p className="text-2xl text-gray-300 leading-relaxed max-w-4xl mx-auto">
-                We're pioneering the future of mobile technology, combining cutting-edge AI,
-                quantum computing, and revolutionary design to create accessories that don't
-                just complement your devices—they transform your entire digital experience.
-              </p>
-              <div className="flex flex-col items-center justify-center text-center  ">
-                  <img src={logo2} alt="Yaluwo Mobile"
-                  className="w-65 h-30 mb-1 m-5" />
-                </div>
-            </div>
-          </section>
+          <FadeInPage><About /></FadeInPage>
         )}
 
         {currentPage === 'contact' && (
-          <div className="pt-20">
-            <NextGenContact />
-          </div>
+          <FadeInPage><Contact /></FadeInPage>
         )}
       </main>
 
-      <FuturisticFooter />
+      <Footer onPageChange={setCurrentPage} />
     </div>
   );
 };
 
-export default RevolutionaryMobileStore;
+export default App;
