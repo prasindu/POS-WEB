@@ -22,8 +22,8 @@ import { FadeInPage, ProfessionalLoader } from './components/Shared';
 import logo2 from './assets/2.png';
 
 // API Service (unchanged functionality)
-const API_BASE_URL = 'https://pos-backend-app-bmgcc4cud0edeufw.southeastasia-01.azurewebsites.net/api';
-const AUTH_URL = 'https://pos-backend-app-bmgcc4cud0edeufw.southeastasia-01.azurewebsites.net/api/auth/login';
+const API_BASE_URL = 'https://prasindu-pos-api-v2-bwb4arb8bkhzc8hn.southeastasia-01.azurewebsites.net/api';
+const AUTH_URL = 'https://prasindu-pos-api-v2-bwb4arb8bkhzc8hn.southeastasia-01.azurewebsites.net/api/auth/login';
 
 const autoLogin = async () => {
   try {
