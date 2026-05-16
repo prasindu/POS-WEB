@@ -22,8 +22,8 @@ const autoLogin = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        "username": "manager1",
-        "password": "securePassword123"
+        "username": "chathusanka",
+        "password": "@asd123"
       })
     });
 
