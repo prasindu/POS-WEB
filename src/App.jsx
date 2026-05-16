@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
@@ -11,6 +11,14 @@ import {
   Eye, ShoppingCart, Bookmark, Share2, ThumbsUp, Layers, Cpu,
   Headphones, Battery, Wifi, Bluetooth
 } from 'lucide-react';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Hero from './components/Hero';
+import ProductGrid from './components/ProductGrid';
+import Features from './components/Features';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import { FadeInPage, ProfessionalLoader } from './components/Shared';
 import logo2 from './assets/2.png';
 
 // API Service (unchanged functionality)
@@ -1341,25 +1349,11 @@ const RevolutionaryLoader = () => {
   );
 };
 
-// Main Revolutionary App Component
-const RevolutionaryMobileStore = () => {
-=======
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 
-// Import Components & Services
-import { apiService } from './services/api';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Hero from './components/Hero';
-import ProductGrid from './components/ProductGrid';
-import Features from './components/Features';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import { FadeInPage, ProfessionalLoader } from './components/Shared';
+
 
 const App = () => {
->>>>>>> b2b7bf43ff86955f8ae817790b9e486105431362
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
